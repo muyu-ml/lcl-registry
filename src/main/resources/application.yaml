@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: lcl-registry
+server:
+  port: 8484
