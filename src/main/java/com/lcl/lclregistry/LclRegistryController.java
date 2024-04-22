@@ -1,5 +1,7 @@
 package com.lcl.lclregistry;
 
+import com.lcl.lclregistry.cluster.Cluster;
+import com.lcl.lclregistry.cluster.Server;
 import com.lcl.lclregistry.model.InstanceMeta;
 import com.lcl.lclregistry.service.RegistryService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Author conglongli
@@ -23,6 +24,9 @@ public class LclRegistryController {
 
     @Autowired
     RegistryService registryService;
+
+    @Autowired
+    Cluster cluster;
 
     @RequestMapping("/reg")
     public InstanceMeta register(@RequestParam String service, @RequestBody InstanceMeta instance){
@@ -58,5 +62,30 @@ public class LclRegistryController {
     public Map<String, Long> getVersions(@RequestParam String services){
         log.info(" =======>>>>>>  get versions of services {} ", services);
         return registryService.getVersions(services.split(","));
+    }
+
+    @RequestMapping("/info")
+    public Server info(){
+        log.info(" =======>>>>>>  get info：{} ", cluster.self());
+        return cluster.self();
+    }
+
+    @RequestMapping("/cluster")
+    public List<Server> cluster(){
+        log.info(" =======>>>>>>  get cluster：{} ", cluster.getServers());
+        return cluster.getServers();
+    }
+
+    @RequestMapping("/leader")
+    public Server leader(){
+        log.info(" =======>>>>>>  get leader：{} ", cluster.leader());
+        return cluster.leader();
+    }
+
+    @RequestMapping("/sl")
+    public String setLeader(){
+        log.info(" =======>>>>>>  set leader ");
+        cluster.self().setLeader(true);
+        return "ok";
     }
 }

@@ -1,5 +1,6 @@
 package com.lcl.lclregistry;
 
+import com.lcl.lclregistry.cluster.Cluster;
 import com.lcl.lclregistry.health.HealthChecker;
 import com.lcl.lclregistry.health.LclHealthChecker;
 import com.lcl.lclregistry.service.LclRegistryService;
@@ -24,5 +25,10 @@ public class LclRegistryConfig {
     @Bean(initMethod = "start", destroyMethod = "stop")
     HealthChecker healthChecker(@Autowired RegistryService registryService){
         return new LclHealthChecker(registryService);
+    }
+
+    @Bean(initMethod = "init")
+    Cluster cluster(@Autowired LclRegistryConfigProperties lclRegistryConfigProperties){
+        return new Cluster(lclRegistryConfigProperties);
     }
 }

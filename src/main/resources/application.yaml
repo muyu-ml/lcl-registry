@@ -3,3 +3,14 @@ spring:
     name: lcl-registry
 server:
   port: 8484
+
+lclregistry:
+  serverList:
+    - http://127.0.0.1:8484
+    - http://127.0.0.1:8485
+    - http://127.0.0.1:8486
+logging:
+  level:
+    root: info
+    com:
+      lcl: debug

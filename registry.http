@@ -8,7 +8,7 @@ Content-Type: application/json
 {
   "schema": "http",
   "host": "127.0.0.1",
-  "port": 8081,
+  "port": 8082,
   "context": "lclrpc",
   "parameters": {
     "env": "dev",
@@ -25,6 +25,33 @@ Content-Type: application/json
 {
   "schema": "http",
   "host": "127.0.0.1",
+  "port": 8081,
+  "context": "lclrpc"
+}
+
+
+### renew 续约
+POST http://localhost:8484/renew?services=com.lcl.lclrpc.demo.api.UserService
+Content-Type: application/json
+
+{
+  "schema": "http",
+  "host": "127.0.0.1",
   "port": 8082,
   "context": "lclrpc"
 }
+
+### 获取服务版本
+GET http://localhost:8484/version?service=com.lcl.lclrpc.demo.api.UserService
+
+### 批量获取服务版本
+GET http://localhost:8484/versions?services=com.lcl.lclrpc.demo.api.UserService
+
+### 获取服务信息
+GET http://localhost:8484/info
+
+### 获取集群信息
+GET http://localhost:8484/cluster
+
+### 设置某个节点为 leader
+GET http://localhost:8485/sl

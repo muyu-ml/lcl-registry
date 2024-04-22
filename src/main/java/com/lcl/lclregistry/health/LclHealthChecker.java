@@ -30,7 +30,7 @@ public class LclHealthChecker implements HealthChecker {
     @Override
     public void start() {
         executorService.scheduleWithFixedDelay(() -> {
-            System.out.println(" =====>>>> Health checker running...");
+//            log.debug(" =====>>>> Health checker running...");
             long now = System.currentTimeMillis();
             LclRegistryService.TIMESTAMPS.keySet().forEach(serviceAndInstance -> {
                 Long timestamp = LclRegistryService.TIMESTAMPS.get(serviceAndInstance);
