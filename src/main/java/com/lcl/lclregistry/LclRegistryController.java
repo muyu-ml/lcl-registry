@@ -2,7 +2,9 @@ package com.lcl.lclregistry;
 
 import com.lcl.lclregistry.cluster.Cluster;
 import com.lcl.lclregistry.cluster.Server;
+import com.lcl.lclregistry.cluster.Snapshot;
 import com.lcl.lclregistry.model.InstanceMeta;
+import com.lcl.lclregistry.service.LclRegistryService;
 import com.lcl.lclregistry.service.RegistryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +33,23 @@ public class LclRegistryController {
     @RequestMapping("/reg")
     public InstanceMeta register(@RequestParam String service, @RequestBody InstanceMeta instance){
         log.info(" =======>>>>>>  register service {} @ {} ", service, instance);
+        checkLeader();
         return registryService.register(service, instance);
+    }
+
+    /**
+     * 非leader节点不允许注册、注销、续约
+     */
+    private void checkLeader() {
+        if(!cluster.self().isLeader()){
+            throw new RuntimeException("current server is not a leader, the leader is " + cluster.leader().getUrl() + ", please send request to leader");
+        }
     }
 
     @RequestMapping("/unreg")
     public InstanceMeta unRegister(@RequestParam String service, @RequestBody InstanceMeta instance){
         log.info(" =======>>>>>>  unregister service {} @ {} ", service, instance);
+        checkLeader();
         return registryService.unRegister(service, instance);
     }
 
@@ -49,6 +62,7 @@ public class LclRegistryController {
     @RequestMapping("/renew")
     public long renew(@RequestBody InstanceMeta instance, @RequestParam String services){
         log.info(" =======>>>>>>  renew instance {} ", instance);
+        checkLeader();
         return registryService.renew(instance, services.split(","));
     }
 
@@ -87,5 +101,11 @@ public class LclRegistryController {
         log.info(" =======>>>>>>  set leader ");
         cluster.self().setLeader(true);
         return "ok";
+    }
+
+    @RequestMapping("/snapshot")
+    public Snapshot snapshot(){
+        log.info(" =======>>>>>>  get snapshot ");
+        return LclRegistryService.snapshot();
     }
 }

@@ -1,16 +1,14 @@
 package com.lcl.lclregistry.cluster;
 
-import com.alibaba.fastjson.JSON;
 import com.lcl.lclregistry.LclRegistryConfigProperties;
 import com.lcl.lclregistry.http.HttpInvoker;
-import lombok.Data;
+import com.lcl.lclregistry.service.LclRegistryService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -41,7 +39,7 @@ public class Cluster {
 
     final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-    int timeout = 5_000;
+    int interval = 5_000;
 
     @Getter
     private List<Server> servers;
@@ -70,8 +68,8 @@ public class Cluster {
                 url = url.replace("127.0.0.1", host);
             }
             // 保证集合中的当前节点为 MYSELF 对象，在探活后更新的就是 MYSELF 对象
-            if(url.equals(MYSELF.getUrl())){
-                servers.add(MYSELF);
+            if(url.equals(self().getUrl())){
+                servers.add(self());
             } else {
                 server.setUrl(url);
                 server.setStatus(false);
@@ -88,10 +86,27 @@ public class Cluster {
                 updateServers();
                 // 集群选主
                 electLeader();
+                // 数据同步
+                syncSnapshotFromLeader();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }, 0, timeout, TimeUnit.MILLISECONDS);
+        }, 0, interval, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 从leader节点同步数据
+     */
+    private void syncSnapshotFromLeader() {
+        log.info(" syncSnapshotFromLeader ===============================>>>> ");
+        // 如果当前节点不是leader，且版本比leader小，则需要从leader节点同步数据
+        if(!self().isLeader() && self().getVersion() < leader().getVersion()){
+            // 从leader节点获取快照数据
+            Snapshot snapshot = HttpInvoker.httpGet(leader().getUrl() + "/snapshot", Snapshot.class);
+            log.info(" =====>>>> leader version：{}, my version：{}, snapshot: {}", leader().getVersion(), self().getVersion(), snapshot);
+            // 更新当前节点数据
+            LclRegistryService.restore(snapshot);
+        }
     }
 
     /**
@@ -155,7 +170,7 @@ public class Cluster {
         servers.stream().parallel().forEach(server -> {
             try {
                 // 自身不需要探活
-                if(server.equals(MYSELF)){
+                if(server.equals(self())){
                     return;
                 }
                 Server serverInfo = HttpInvoker.httpGet(server.getUrl() + "/info", Server.class);
@@ -176,6 +191,8 @@ public class Cluster {
     }
 
     public Server self(){
+        // 更新版本号，为了保证版本号是最新的，所有使用 MYSELF 对象的地方都需要调用此方法获取
+        MYSELF.setVersion(LclRegistryService.VERSION.get());
         return MYSELF;
     }
 

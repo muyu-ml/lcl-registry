@@ -2,13 +2,13 @@
 GET http://localhost:8484/findAll?service=com.lcl.lclrpc.demo.api.UserService
 
 ### 注册一个服务实例
-POST http://localhost:8484/reg?service=com.lcl.lclrpc.demo.api.UserService
+POST http://localhost:8485/reg?service=com.lcl.lclrpc.demo.api.UserService
 Content-Type: application/json
 
 {
   "schema": "http",
   "host": "127.0.0.1",
-  "port": 8082,
+  "port": 8085,
   "context": "lclrpc",
   "parameters": {
     "env": "dev",
@@ -48,10 +48,13 @@ GET http://localhost:8484/version?service=com.lcl.lclrpc.demo.api.UserService
 GET http://localhost:8484/versions?services=com.lcl.lclrpc.demo.api.UserService
 
 ### 获取服务信息
-GET http://localhost:8484/info
+GET http://localhost:8485/info
 
 ### 获取集群信息
-GET http://localhost:8485/cluster
+GET http://localhost:8486/cluster
 
 ### 设置某个节点为 leader
 GET http://localhost:8485/sl
+
+### 获取 snapshot
+GET http://localhost:8484/snapshot
