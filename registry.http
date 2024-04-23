@@ -51,7 +51,7 @@ GET http://localhost:8484/versions?services=com.lcl.lclrpc.demo.api.UserService
 GET http://localhost:8484/info
 
 ### 获取集群信息
-GET http://localhost:8484/cluster
+GET http://localhost:8485/cluster
 
 ### 设置某个节点为 leader
 GET http://localhost:8485/sl

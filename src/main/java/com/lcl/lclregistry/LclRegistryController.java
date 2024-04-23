@@ -66,7 +66,7 @@ public class LclRegistryController {
 
     @RequestMapping("/info")
     public Server info(){
-        log.info(" =======>>>>>>  get info：{} ", cluster.self());
+//        log.info(" =======>>>>>>  get info：{} ", cluster.self());
         return cluster.self();
     }
 

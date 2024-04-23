@@ -13,4 +13,4 @@ logging:
   level:
     root: info
     com:
-      lcl: debug
+      lcl: info

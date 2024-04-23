@@ -1,5 +1,6 @@
 package com.lcl.lclregistry.cluster;
 
+import com.alibaba.fastjson.JSON;
 import com.lcl.lclregistry.LclRegistryConfigProperties;
 import com.lcl.lclregistry.http.HttpInvoker;
 import lombok.Data;
@@ -90,13 +91,14 @@ public class Cluster {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }, 10_000, timeout, TimeUnit.MILLISECONDS);
+        }, 0, timeout, TimeUnit.MILLISECONDS);
     }
 
     /**
      * 集群选主
      */
     private void electLeader() {
+        log.info(" electLeader ===============================>>>> ");
         // 获取所有存活且认为自己是master的节点
         List<Server> masters = this.servers.stream().filter(Server::isStatus).filter(Server::isLeader).collect(Collectors.toList());
         if(masters.isEmpty()){
@@ -120,8 +122,9 @@ public class Cluster {
     private void elect() {
         Server candidate = null;
         for (Server server : servers) {
+            // 选举前先清空所有节点的leader标识，防止脑裂恢复后出现多leader情况
             server.setLeader(false);
-            // 选出存活的节点中 hashCode(url的hashCode)最小的
+            // 选出存活的节点中 hashCode(url的hashCode)最小的，这种算法简单，不需要各个节点同步谁是leader
             if(server.isStatus()){
                 if(candidate == null){
                     candidate = server;
@@ -147,12 +150,18 @@ public class Cluster {
      * 集群探活
      */
     private void updateServers() {
-        servers.forEach(server -> {
+        log.info(" updateServers ===============================>>>> ");
+        // 并发探活
+        servers.stream().parallel().forEach(server -> {
             try {
+                // 自身不需要探活
+                if(server.equals(MYSELF)){
+                    return;
+                }
                 Server serverInfo = HttpInvoker.httpGet(server.getUrl() + "/info", Server.class);
-                log.debug(" =====>>>> health check success for: {}", serverInfo);
+                log.info(" =====>>>> health check success for: {}", serverInfo);
                 if(serverInfo != null) {
-                    server.setStatus(serverInfo.isStatus());
+                    server.setStatus(true);
                     server.setLeader(serverInfo.isLeader());
                     server.setVersion(serverInfo.getVersion());
                 } else {
