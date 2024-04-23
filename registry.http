@@ -54,7 +54,7 @@ GET http://localhost:8485/info
 GET http://localhost:8486/cluster
 
 ### 设置某个节点为 leader
-GET http://localhost:8485/sl
+GET http://localhost:8486/sl
 
 ### 获取 snapshot
 GET http://localhost:8484/snapshot

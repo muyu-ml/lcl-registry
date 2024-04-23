@@ -1,4 +1,4 @@
-package com.lcl.lclregistry;
+package com.lcl.lclregistry.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

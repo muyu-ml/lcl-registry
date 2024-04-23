@@ -1,4 +1,4 @@
-package com.lcl.lclregistry;
+package com.lcl.lclregistry.api;
 
 import com.lcl.lclregistry.cluster.Cluster;
 import com.lcl.lclregistry.cluster.Server;

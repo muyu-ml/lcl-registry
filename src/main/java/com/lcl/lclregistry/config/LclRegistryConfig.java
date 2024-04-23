@@ -1,4 +1,4 @@
-package com.lcl.lclregistry;
+package com.lcl.lclregistry.config;
 
 import com.lcl.lclregistry.cluster.Cluster;
 import com.lcl.lclregistry.health.HealthChecker;
