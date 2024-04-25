@@ -60,8 +60,15 @@ public class LclRegistryController {
     }
 
     @RequestMapping("/renew")
-    public long renew(@RequestBody InstanceMeta instance, @RequestParam String services){
-        log.info(" =======>>>>>>  renew instance {} ", instance);
+    public long renew(@RequestBody InstanceMeta instance, @RequestParam String service){
+        log.info(" =======>>>>>>  renew {} @ {} ", service, instance);
+        checkLeader();
+        return registryService.renew(instance, service);
+    }
+
+    @RequestMapping("/renews")
+    public long renews(@RequestBody InstanceMeta instance, @RequestParam String services){
+        log.info(" =======>>>>>>  renews {} @ {} ", services, instance);
         checkLeader();
         return registryService.renew(instance, services.split(","));
     }

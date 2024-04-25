@@ -66,7 +66,7 @@ public class LclRegistryService implements RegistryService{
     }
 
     @Override
-    public long renew(InstanceMeta instance, String... services) {
+    public synchronized long renew(InstanceMeta instance, String... services) {
         long now = System.currentTimeMillis();
         for(String service : services){
             TIMESTAMPS.put(service + "@" + instance.toUrl(), now);
